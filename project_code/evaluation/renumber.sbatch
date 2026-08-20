@@ -1,0 +1,38 @@
+#!/bin/bash
+#SBATCH --job-name=renumbering
+#S BATCH --account=opig                        # Project Account  
+
+#SBATCH --partition=standard-opig-gpu
+# SBATCH --nodelist=nagagpu09.cpu.stats.ox.ac.uk
+
+#SBATCH --mail-user=victoria.mcmillan@linacre.ox.ac.uk
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --clusters=swan
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=32G
+#SBATCH --time=14-00:00:0
+#SBATCH --output=/opig-shared/users/lina4783/abb4_experiments/evaluation/script_outputs/renumber%j.out
+
+set -euo pipefail
+
+# Load environment
+source /etc/profile.d/modules.sh
+module purge
+module use /apps/modulefiles/Core
+module load conda
+source "$(conda info --base)/etc/profile.d/conda.sh"
+
+conda activate abb4_env
+
+#python -m pip uninstall -y abb4
+#python -m pip install -e /opig-shared/users/lina4783/ABB4
+
+python -c "import abb4; print(abb4.__file__)"
+
+
+#run script
+python /opig-shared/users/lina4783/ABB4/scripts/renumber_predictions.py \
+  --pred_path /opig-shared/users/lina4783/abb4_experiments/evaluation/predictions_train_ckpt_5139 \
+  --out_path /opig-shared/users/lina4783/abb4_experiments/evaluation/predictions_train_ckpt_5139_imgt \
+  --gpu
